@@ -341,11 +341,34 @@ const int LOG_LENGTH = 800;
 
 - (void)setContactKey:(CDVInvokedUrlCommand *)command {
     NSString *contactKey = command.arguments[0];
+    NSString *contactKeyHash = [self contactKeyHash:contactKey];
 
-    BOOL success = [[MarketingCloudSDK sharedInstance] sfmc_setContactKey:contactKey];
+    BOOL success = [[MarketingCloudSDK sharedInstance] sfmc_setContactKey:contactKeyHash];
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                                 messageAsInt:(success) ? 1 : 0]
                                 callbackId:command.callbackId];
+}
+
+- contactKeyHash:(NSString *)contactKey {
+    if(contactKey.length < 15) {
+        while (contactKey.length < 15) {
+            contactKey = [NSString stringWithFormat:@"%@%@", @"0", contactKey];
+        }
+    }
+
+    NSData *data = [contactKey dataUsingEncoding:NSUTF8StringEncoding];
+    uint8_t digest[CC_SHA1_DIGEST_LENGTH];
+
+    CC_SHA1(data.bytes, (CC_LONG)data.length, digest);
+    NSMutableString *contactKeyHash = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
+
+    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
+        [contactKeyHash appendFormat:@"%02x", digest[i]];
+    }
+
+    contactKeyHash  = [NSMutableString stringWithFormat:@"%@%@", @"0x", [contactKeyHash uppercaseString]];
+
+    return contactKeyHash;
 }
 
 - (void)addTag:(CDVInvokedUrlCommand *)command {

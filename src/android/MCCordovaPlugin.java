@@ -285,11 +285,36 @@ public class MCCordovaPlugin extends CordovaPlugin implements UrlHandler {
             public void execute(
                 MarketingCloudSdk sdk, JSONArray args, CallbackContext callbackContext) {
                 String contactKey = args.optString(0, null);
+                final String stringContactKeyHash = contactKeyHash(contactKey);
+
                 boolean success =
-                    sdk.getRegistrationManager().edit().setContactKey(contactKey).commit();
+                    sdk.getRegistrationManager().edit().setContactKey(stringContactKeyHash).commit();
                 callbackContext.success(success ? 1 : 0);
             }
         };
+    }
+
+    private String contactKeyHash(String contactKey) {
+        if(contactKey.length() < 15) {
+            while(contactKey.length() < 15) {
+                contactKey = '0' + contactKey;
+            }
+        }
+
+        MessageDigest mDigest = null;
+        try {
+            mDigest = MessageDigest.getInstance("SHA1");
+        } catch (final NoSuchAlgorithmException e) { return contactKey; }
+
+        final byte[] result = mDigest.digest(contactKey.getBytes());
+        final StringBuffer sb = new StringBuffer();
+
+        for (int i = 0; i < result.length; i++) {
+            sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        final String stringHex = "0x".concat(sb.toString().toUpperCase());
+        return stringHex;
     }
 
     private ActionHandler getTags() {
