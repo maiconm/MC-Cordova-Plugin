@@ -26,6 +26,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #import "MCCordovaPlugin.h"
+#import "CommonCrypto/CommonDigest.h"
 
 @implementation MCCordovaPlugin
 

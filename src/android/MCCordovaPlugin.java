@@ -36,6 +36,8 @@ import com.salesforce.marketingcloud.MarketingCloudSdk;
 import com.salesforce.marketingcloud.UrlHandler;
 import com.salesforce.marketingcloud.notifications.NotificationManager;
 import com.salesforce.marketingcloud.notifications.NotificationMessage;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Map;
 import org.apache.cordova.CallbackContext;
